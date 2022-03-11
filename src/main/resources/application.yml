@@ -8,3 +8,6 @@ spring:
         max-idle: 300
         max-active: 600
         max-wait: 1s
+#logging:
+#  level:
+#    root: debug
