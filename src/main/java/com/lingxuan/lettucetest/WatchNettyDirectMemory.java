@@ -18,8 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class WatchNettyDirectMemory {
 
-    static File file = new File(String.format("/Users/admin/ideaProject/test/lettuce-test/jvm/jstack-5.1.4.log",
-            LocalDateTimeUtil.format(LocalDateTime.now(),"")));
+    static File file = new File("/Users/admin/ideaProject/test/lettuce-test/jvm/jstack-5.1.4.log");
 
     static {
         boolean del = FileUtil.del(file);
@@ -34,15 +33,15 @@ public class WatchNettyDirectMemory {
      * @description:
      */
     public static void watch(int capacity, AtomicLong directMemory) {
-        System.out.println("堆外内存：新增：" + capacity + " bytes,目前大小：" + directMemory.get() + " bytes");
-        if(capacity > 200000){
+        if(capacity > 65536 ){
+            System.out.println("堆外内存：新增：" + capacity + " bytes,目前大小：" + directMemory.get() + " bytes");
             jstack(capacity,directMemory);
         }
     }
 
 
     public static String jstack(int capacity, AtomicLong directMemory) {
-        String jstack = VMUtil.jstack() + String.format("\n----------新增：%s-------目前：%s----------------------------\n", capacity,directMemory);
+        String jstack = VMUtil.jstack("CommandHandler") + String.format("----------新增：%s-------目前：%s----------------------------\n", capacity,directMemory);
         FileUtil.appendUtf8String(jstack,file);
         return jstack;
     }

@@ -5,9 +5,9 @@ spring:
     timeout: 300s
     lettuce:
       pool:
-        max-idle: 300
-        max-active: 600
-        max-wait: 1s
+        max-idle: 2
+        max-active: 2
+        max-wait: 30s
 #logging:
 #  level:
 #    root: debug

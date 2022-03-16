@@ -4,6 +4,7 @@ import ch.qos.logback.core.OutputStreamAppender;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import com.google.common.base.Throwables;
+import io.netty.util.internal.StringUtil;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -26,11 +27,11 @@ public class VMUtil {
 
 
     @SneakyThrows
-    public static String jstack() {
-        return jstack(Thread.getAllStackTraces());
+    public static String jstack(String keyword) {
+        return jstack(Thread.getAllStackTraces(),keyword);
     }
 
-    public static String jstack(Map<Thread, StackTraceElement[]> map) {
+    public static String jstack(Map<Thread, StackTraceElement[]> map,String keyword) {
         StringBuilder result = new StringBuilder();
         try {
             Iterator<Map.Entry<Thread, StackTraceElement[]>> ite = map.entrySet().iterator();
@@ -40,11 +41,22 @@ public class VMUtil {
                 Thread thread = entry.getKey();
                 if (elements != null && elements.length > 0) {
                     String threadName = entry.getKey().getName();
-                    result.append(String.format("%-40sTID: %d STATE: %s%n", threadName, thread.getId(), thread.getState()));
+                    StringBuilder tmp = new StringBuilder(
+                            String.format("%-40sTID: %d STATE: %s%n", threadName, thread.getId(), thread.getState()));
+                    boolean keywordCondition = Boolean.FALSE;
                     for (StackTraceElement el : elements) {
-                        result.append(String.format("%-40s%s%n", threadName, el.toString()));
+                        String elStr = el.toString();
+                        if(StringUtil.isNullOrEmpty(keyword)){
+                            tmp.append(String.format("%-40s%s%n", threadName, elStr));
+                            keywordCondition = Boolean.TRUE;
+                        }else if(elStr.contains(keyword)){
+                            tmp.append(String.format("%-40s%s%n", threadName, elStr));
+                            keywordCondition = Boolean.TRUE;
+                        }
                     }
-                    result.append("\n");
+                    if(keywordCondition){
+                        result.append(tmp).append("\n");
+                    }
                 }
             }
         } catch (Throwable e) {
